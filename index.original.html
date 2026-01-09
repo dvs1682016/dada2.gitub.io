@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <title>排便日記 - 腸胃健康監控系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- iOS 支援 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iI2ZmZjdkZCIvPjxwYXRoIGQ9Ik01MCA4NWMtMjAgMC0zNS0xMi0zNS0yNSAwLTggMTAtMTUgMTUtMTggMi01IDgtMTUgMjAtMTUgMTUgMCAyMCAxMCAyMCAxOCAxMCA1IDE1IDEyIDE1IDIwIDAgMTMtMTUgMjUtMzUgMjV6IiBmaWxsPSIjNzgzNTBZiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjQ1IiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTQyIDY1czQgNCA4IDQgOC00IDgtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMjUgMzBsLTUtNU03NSAzMGw1LTVNNTAgMjBWMTIiIHN0cm9rZT0iIzc4MzUwZiIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden; 
+            height: 100vh;
+            width: 100vw;
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .active-nav { color: #0d9488; font-weight: 900; }
+        .active-nav .icon-bg { background-color: #f0fdfa; transform: scale(1.1); }
+        .active-nav .dot { display: block; }
+        
+        button:focus { outline: none; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PWA 安裝模式特定樣式 --- */
+        @media (display-mode: standalone) {
+            /* 在安裝模式下隱藏標題文字 */
+            .brand-text {
+                display: none;
+            }
+            /* 在安裝模式下讓 Logo 變大並置中 */
+            .brand-logo {
+                width: 56px;
+                height: 56px;
+            }
+            .header-container {
+                justify-content: center !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                height: 100px;
+                display: flex;
+                align-items: center;
+            }
+            .user-profile {
+                display: none; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex justify-center">
+
+    <div class="w-full max-w-md bg-white h-screen shadow-2xl relative flex flex-col border-x border-slate-200 overflow-hidden">
+        
+        <!-- [主標頭] -->
+        <header id="main-header" class="pt-10 pb-4 px-6 bg-white z-50 flex items-center justify-between border-b border-slate-50 shadow-sm flex-none header-container">
+            <div class="flex items-center gap-3">
+                <!-- 深棕色可愛 Logo (SVG) -->
+                <div class="brand-logo w-10 h-10 flex-shrink-0 transition-all duration-500">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#fff7ed"/>
+                        <path d="M50 85c-20 0-35-12-35-25 0-8 10-15 15-18 2-5 8-15 20-15 15 0 20 10 20 18 10 5 15 12 15 20 0 13-15 25-35 25z" fill="#78350f"/>
+                        <circle cx="40" cy="45" r="5" fill="white"/>
+                        <circle cx="60" cy="45" r="5" fill="white"/>
+                        <path d="M42 65s4 4 8 4 8-4 8-4" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M25 30l-5-5M75 30l5-5M50 20V12" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                
+                <div class="flex flex-col brand-text">
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight leading-none">排便日記</h1>
+                    <span class="text-[11px] text-teal-700 font-black uppercase tracking-widest mt-1.5 font-bold">腸胃健康監控系統</span>
+                </div>
+            </div>
+            
+            <div class="user-profile w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 border border-slate-200 shadow-inner">
+                <i data-lucide="user-circle" class="w-7 h-7"></i>
+            </div>
+        </header>
+
+        <!-- [次標頭] -->
+        <div id="sub-header" class="z-40 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-slate-100 flex items-center gap-3 flex-none shadow-sm">
+            <!-- 由 JS 動態注入 -->
+        </div>
+
+        <!-- [主要內容區域] -->
+        <main id="main-content" class="flex-1 overflow-y-auto bg-slate-50/50 no-scrollbar overflow-x-hidden">
+            <!-- 動態注入內容 -->
+        </main>
+
+        <!-- [底部導覽列] -->
+        <nav class="bg-white border-t border-slate-200 flex justify-around items-center py-4 px-2 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] pb-safe flex-none">
+            <button onclick="switchView('record')" id="nav-record" class="nav-item flex flex-col items-center gap-1.5 flex-1 py-1 text-slate-400 transition-all">
+                <div class="icon-bg p-1.5 rounded-xl transition-all"><i data-lucide="clipboard-list" class="w-6 h-6"></i></div>
+                <span class="text-xs font-black tracking-tight text-center">紀錄日記</span>
+                <div class="dot hidden w-6 h-1 rounded-full bg-teal-600 -mt-0.5"></div>
+            </button>
+            <button onclick="switchView('history')" id="nav-history" class="nav-item flex flex-col items-center gap-1.5 flex-1 py-1 text-slate-400 transition-all">
+                <div class="icon-bg p-1.5 rounded-xl transition-all"><i data-lucide="history" class="w-6 h-6"></i></div>
+                <span class="text-xs font-black tracking-tight text-center">查看足跡</span>
+                <div class="dot hidden w-6 h-1 rounded-full bg-teal-600 -mt-0.5"></div>
+            </button>
+            <button onclick="switchView('meds')" id="nav-meds" class="nav-item flex flex-col items-center gap-1.5 flex-1 py-1 text-slate-400 transition-all">
+                <div class="icon-bg p-1.5 rounded-xl transition-all"><i data-lucide="pill" class="w-6 h-6"></i></div>
+                <span class="text-xs font-black tracking-tight text-center">藥品設定</span>
+                <div class="dot hidden w-6 h-1 rounded-full bg-teal-600 -mt-0.5"></div>
+            </button>
+            <button onclick="switchView('sensations')" id="nav-sensations" class="nav-item flex flex-col items-center gap-1.5 flex-1 py-1 text-slate-400 transition-all">
+                <div class="icon-bg p-1.5 rounded-xl transition-all"><i data-lucide="activity" class="w-6 h-6"></i></div>
+                <span class="text-xs font-black tracking-tight text-center">感覺設定</span>
+                <div class="dot hidden w-6 h-1 rounded-full bg-teal-600 -mt-0.5"></div>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-8 py-3 rounded-xl shadow-2xl z-50 font-bold border border-slate-700 hidden"></div>
+
+    <script>
+        // --- PWA 動態 Manifest 處理 ---
+        function initPWA() {
+            const logoBase64 = "PHN2ZyB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iI2ZmZjdkZCIvPjxwYXRoIGQ9Ik01MCA4NWMtMjAgMC0zNS0xMi0zNS0yNSAwLTggMTAtMTUgMTUtMTggMi01IDgtMTUgMjAtMTUgMTUgMCAyMCAxMCAyMCAxOCAxMCA1IDE1IDEyIDE1IDIwIDAgMTMtMTUgMjUtMzUgMjV6IiBmaWxsPSIjNzgzNTBZiLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjQ1IiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iNDUiIHI9IjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTQyIDY1czQgNCA4IDQgOC00IDgtNCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMjUgMzBsLTUtNU03NSAzMGw1LTVNNTAgMjBWMTIiIHN0cm9rZT0iIzc4MzUwZiIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=";
+            const manifest = {
+                "name": "排便日記",
+                "short_name": "排便日記",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#ffffff",
+                "theme_color": "#0d9488",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml;base64," + logoBase64,
+                        "sizes": "192x192",
+                        "type": "image/svg+xml",
+                        "purpose": "any"
+                    },
+                    {
+                        "src": "data:image/svg+xml;base64," + logoBase64,
+                        "sizes": "512x512",
+                        "type": "image/svg+xml",
+                        "purpose": "any"
+                    }
+                ]
+            };
+            const stringManifest = JSON.stringify(manifest);
+            const blob = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestURL;
+            document.head.appendChild(link);
+        }
+
+        // --- 狀態管理 ---
+        let currentView = 'record';
+        let currentDate = new Date().toISOString().split('T')[0];
+        let historyFilter = { startDate: '', endDate: '', status: '' };
+
+        const DEFAULT_SENSATIONS = ["肚子脹脹的", "肚子隱隱作痛", "腸胃咕嚕咕嚕叫", "想上卻上不出來", "今天沒什麼感覺"];
+        const DEFAULT_MEDS = ["浣腸", "瀉藥", "醫生開的藥"];
+
+        let logs = JSON.parse(localStorage.getItem('poop_diary_logs')) || [];
+        let medsList = JSON.parse(localStorage.getItem('poop_diary_meds')) || DEFAULT_MEDS;
+        let sensationsList = JSON.parse(localStorage.getItem('poop_diary_sensations')) || DEFAULT_SENSATIONS;
+
+        let currentLogState = { status: '順暢', selectedMeds: [], selectedSensations: [], note: '' };
+
+        window.onload = () => {
+            initPWA();
+            loadLogData();
+            switchView('record');
+        };
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
+            document.getElementById(`nav-${view}`).classList.add('active-nav');
+            updateSubHeader(view);
+            if (view === 'record') renderRecord();
+            else if (view === 'history') renderHistory();
+            else if (view === 'meds') renderMedsSettings();
+            else if (view === 'sensations') renderSensationsSettings();
+            lucide.createIcons();
+            document.getElementById('main-content').scrollTop = 0;
+        }
+
+        function updateSubHeader(view) {
+            const subHeader = document.getElementById('sub-header');
+            let content = '';
+            switch(view) {
+                case 'record': content = `<i data-lucide="clipboard-list" class="text-teal-600 w-6 h-6"></i><h2 class="text-xl font-black text-slate-800">每日紀錄日記</h2>`; break;
+                case 'history': content = `<i data-lucide="history" class="text-teal-600 w-6 h-6"></i><h2 class="text-xl font-black text-slate-800">歷史紀錄分析</h2>`; break;
+                case 'meds': content = `<i data-lucide="settings" class="text-slate-600 w-6 h-6"></i><h2 class="text-xl font-black text-slate-800">常用藥品維護</h2>`; break;
+                case 'sensations': content = `<i data-lucide="activity" class="text-teal-600 w-6 h-6"></i><h2 class="text-xl font-black text-slate-800">自覺症狀定義</h2>`; break;
+            }
+            subHeader.innerHTML = content;
+            lucide.createIcons();
+        }
+
+        function loadLogData() {
+            const existing = logs.find(l => l.date === currentDate);
+            if (existing) {
+                currentLogState = {
+                    status: existing.status || '順暢',
+                    selectedMeds: [...(existing.meds || [])],
+                    selectedSensations: [...(existing.sensations || [])],
+                    note: existing.note || ''
+                };
+            } else {
+                currentLogState = { status: '順暢', selectedMeds: [], selectedSensations: [], note: '' };
+            }
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('poop_diary_logs', JSON.stringify(logs));
+            localStorage.setItem('poop_diary_meds', JSON.stringify(medsList));
+            localStorage.setItem('poop_diary_sensations', JSON.stringify(sensationsList));
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
+
+        function renderRecord() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="p-5 space-y-6 pb-12 fade-in">
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 flex items-center justify-between">
+                        <button onclick="changeDate(-1)" class="p-3 text-slate-500 hover:text-teal-600 active:scale-90"><i data-lucide="chevron-left" class="w-7 h-7"></i></button>
+                        <div class="relative flex flex-col items-center flex-1">
+                            <input type="date" value="${currentDate}" onchange="updateDate(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+                            <div class="text-xs text-slate-400 font-bold mb-1">查詢日期</div>
+                            <div class="text-xl font-bold text-slate-900 flex items-center gap-2">${currentDate}<i data-lucide="calendar" class="w-5 h-5 text-teal-600"></i></div>
+                        </div>
+                        <button onclick="changeDate(1)" class="p-3 text-slate-500 hover:text-teal-600 active:scale-90"><i data-lucide="chevron-right" class="w-7 h-7"></i></button>
+                    </div>
+                    <section class="space-y-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="activity" class="text-teal-600 w-5 h-5"></i> 臨床排便狀態</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            ${['便秘', '順暢', '拉肚子', '多次排便'].map(s => `
+                                <button onclick="updateStatus('${s}')" class="py-4 px-4 rounded-xl border-2 transition-all text-base font-bold ${currentLogState.status === s ? 'bg-teal-600 border-teal-700 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-600 active:bg-slate-100'}">
+                                    ${s}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </section>
+                    <section class="space-y-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="pill" class="text-teal-600 w-5 h-5"></i> 當日用藥紀錄</h3>
+                        <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 grid grid-cols-2 gap-3">
+                            ${medsList.length ? medsList.map(m => `
+                                <label class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer active:bg-teal-100 transition-colors ${currentLogState.selectedMeds.includes(m) ? 'bg-teal-50 border-teal-300 shadow-sm' : 'bg-slate-50 border-slate-100'}">
+                                    <input type="checkbox" onchange="toggleMed('${m}')" ${currentLogState.selectedMeds.includes(m) ? 'checked' : ''} class="w-5 h-5 accent-teal-600">
+                                    <span class="text-sm font-bold truncate ${currentLogState.selectedMeds.includes(m) ? 'text-teal-900' : 'text-slate-600'}">${m}</span>
+                                </label>
+                            `).join('') : '<p class="col-span-2 text-center py-4 text-sm italic text-slate-400">請先設定常用藥品</p>'}
+                        </div>
+                    </section>
+                    <section class="space-y-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="message-square-text" class="text-sky-600 w-5 h-5"></i> 腸胃自覺症狀</h3>
+                        <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                ${sensationsList.map(s => `
+                                    <label class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer active:bg-sky-100 transition-colors ${currentLogState.selectedSensations.includes(s) ? 'bg-sky-50 border-sky-300 shadow-sm' : 'bg-slate-50 border-slate-100'}">
+                                        <input type="checkbox" onchange="toggleSensation('${s}')" ${currentLogState.selectedSensations.includes(s) ? 'checked' : ''} class="w-5 h-5 accent-sky-600">
+                                        <span class="text-sm font-bold leading-snug ${currentLogState.selectedSensations.includes(s) ? 'text-sky-900' : 'text-slate-600'}">${s}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                            <div class="pt-2 border-t border-slate-100">
+                                <input type="text" placeholder="其他詳細補充備註..." id="note-input" value="${currentLogState.note}" oninput="updateNote(this.value)" class="w-full text-base bg-slate-50 p-4 rounded-lg border border-slate-200 outline-none focus:border-teal-400 font-medium" />
+                            </div>
+                        </div>
+                    </section>
+                    <button onclick="saveCurrentLog()" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-5 rounded-2xl font-bold text-lg shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all mb-4">
+                        <i data-lucide="save" class="w-6 h-6"></i> 儲存健康數據
+                    </button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderHistory() {
+            const main = document.getElementById('main-content');
+            let filteredLogs = logs.filter(log => {
+                const dateMatch = (!historyFilter.startDate || log.date >= historyFilter.startDate) && (!historyFilter.endDate || log.date <= historyFilter.endDate);
+                const statusMatch = !historyFilter.status || log.status === historyFilter.status;
+                return dateMatch && statusMatch;
+            });
+            main.innerHTML = `
+                <div class="p-5 space-y-4 pb-12 fade-in">
+                    <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200 space-y-4 mb-6">
+                        <div class="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-widest mb-1"><i data-lucide="filter" class="w-4 h-4 text-teal-600"></i> 數據篩選器</div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="flex flex-col gap-2"><label class="text-sm font-black text-slate-700 ml-1">起點日期</label><input type="date" value="${historyFilter.startDate}" onchange="updateHistoryFilter('startDate', this.value)" class="w-full text-base font-bold bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 shadow-inner" /></div>
+                            <div class="flex flex-col gap-2"><label class="text-sm font-black text-slate-700 ml-1">終點日期</label><input type="date" value="${historyFilter.endDate}" onchange="updateHistoryFilter('endDate', this.value)" class="w-full text-base font-bold bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 shadow-inner" /></div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-black text-slate-700 ml-1">排便狀態篩選</label>
+                            <div class="relative">
+                                <select onchange="updateHistoryFilter('status', this.value)" class="w-full text-base font-bold bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-teal-500 shadow-inner appearance-none">
+                                    <option value="">全部狀態顯示</option>
+                                    <option value="便秘" ${historyFilter.status === '便秘' ? 'selected' : ''}>便秘</option>
+                                    <option value="順暢" ${historyFilter.status === '順暢' ? 'selected' : ''}>順暢</option>
+                                    <option value="拉肚子" ${historyFilter.status === '拉肚子' ? 'selected' : ''}>拉肚子</option>
+                                    <option value="多次排便" ${historyFilter.status === '多次排便' ? 'selected' : ''}>多次排便</option>
+                                </select>
+                                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><i data-lucide="chevron-down" class="w-5 h-5"></i></div>
+                            </div>
+                        </div>
+                        ${(historyFilter.startDate || historyFilter.endDate || historyFilter.status) ? `<button onclick="clearHistoryFilter()" class="w-full py-3 text-sm font-black text-teal-700 bg-teal-50 rounded-xl border border-teal-100 hover:bg-teal-100 transition-all flex items-center justify-center gap-2"><i data-lucide="refresh-ccw" class="w-4 h-4"></i> 清除並重設所有篩選</button>` : ''}
+                    </div>
+                    ${filteredLogs.length === 0 ? `<div class="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200"><div class="text-slate-200 mb-3 flex justify-center"><i data-lucide="search-x" class="w-16 h-16"></i></div><div class="text-slate-400 font-bold text-lg">查無紀錄</div></div>` : 
+                        filteredLogs.map(log => `
+                            <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 border-l-[6px] border-l-teal-600 relative">
+                                <button onclick="editLog('${log.date}')" class="absolute top-4 right-4 p-2 bg-slate-50 text-teal-600 rounded-lg border border-slate-100 hover:bg-teal-50 active:scale-90 transition-all shadow-sm flex items-center gap-1"><i data-lucide="edit-3" class="w-4 h-4"></i><span class="text-xs font-bold">修改</span></button>
+                                <div class="flex flex-col mb-3"><span class="font-black text-slate-800 text-lg">${log.date}</span><div class="mt-2"><span class="text-lg px-4 py-2 rounded-xl font-black uppercase inline-block ${log.status === '順暢' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${log.status}</span></div></div>
+                                <div class="flex flex-wrap gap-2 mb-3 pr-16">${log.sensations.map(s => `<span class="text-xs bg-sky-50 text-sky-800 px-3 py-1 rounded-md border border-sky-200 font-bold">${s}</span>`).join('')}${log.meds.map(m => `<span class="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-md border border-slate-300 font-bold">${m}</span>`).join('')}</div>
+                                ${log.note ? `<div class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border-l-4 border-slate-300 font-medium italic">“ ${log.note} ”</div>` : ''}
+                            </div>
+                        `).join('')}
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderMedsSettings() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="p-5 space-y-6 pb-12 fade-in">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-lg space-y-3">
+                        <div class="text-sm font-bold text-slate-500 ml-1">輸入欲新增的藥品名稱</div>
+                        <div class="flex gap-2">
+                            <input id="new-med" type="text" placeholder="例如：益生菌..." class="flex-1 min-w-0 px-4 py-3 outline-none text-base bg-slate-50 border border-slate-200 rounded-xl font-bold focus:border-teal-500 shadow-inner" />
+                            <button onclick="addItem('med')" class="px-4 bg-teal-600 text-white rounded-xl shadow-md active:scale-95 transition-all font-black flex-shrink-0 whitespace-nowrap">新增</button>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mt-4">
+                        ${medsList.map((med, i) => `<div class="bg-white p-5 rounded-xl flex justify-between items-center border border-slate-200 shadow-sm hover:border-teal-100"><span class="text-slate-800 text-base font-bold">${med}</span><button onclick="removeItem('med', ${i})" class="text-slate-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('')}
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderSensationsSettings() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="p-5 space-y-6 pb-12 fade-in">
+                    <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-lg space-y-3">
+                        <div class="text-sm font-bold text-slate-500 ml-1">新增常見的腸胃自覺感覺</div>
+                        <div class="flex gap-2">
+                            <input id="new-sensation" type="text" placeholder="例如：肚子冷冷的..." class="flex-1 min-w-0 px-4 py-3 outline-none text-base bg-slate-50 border border-slate-200 rounded-xl font-bold focus:border-teal-500 shadow-inner" />
+                            <button onclick="addItem('sensation')" class="px-4 bg-teal-600 text-white rounded-xl shadow-md active:scale-95 transition-all font-black flex-shrink-0 whitespace-nowrap">新增</button>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mt-4">
+                        ${sensationsList.map((sen, i) => `<div class="bg-white p-5 rounded-xl flex justify-between items-center border border-slate-200 shadow-sm hover:border-teal-100"><span class="text-slate-800 text-base font-bold">${sen}</span><button onclick="removeItem('sensation', ${i})" class="text-slate-300 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>`).join('')}
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function updateHistoryFilter(key, value) { historyFilter[key] = value; renderHistory(); }
+        function clearHistoryFilter() { historyFilter = { startDate: '', endDate: '', status: '' }; renderHistory(); }
+        function editLog(date) { currentDate = date; loadLogData(); switchView('record'); showToast("📝 已切換至 " + date + " 進行修改"); }
+        function changeDate(days) { let d = new Date(currentDate); d.setDate(d.getDate() + days); currentDate = d.toISOString().split('T')[0]; loadLogData(); renderRecord(); }
+        function updateDate(val) { currentDate = val; loadLogData(); renderRecord(); }
+        function updateStatus(s) { currentLogState.status = s; renderRecord(); }
+        function toggleMed(m) { const idx = currentLogState.selectedMeds.indexOf(m); if (idx > -1) currentLogState.selectedMeds.splice(idx, 1); else currentLogState.selectedMeds.push(m); renderRecord(); }
+        function toggleSensation(s) { const idx = currentLogState.selectedSensations.indexOf(s); if (idx > -1) currentLogState.selectedSensations.splice(idx, 1); else currentLogState.selectedSensations.push(s); renderRecord(); }
+        function updateNote(val) { currentLogState.note = val; }
+        function saveCurrentLog() { const newLog = { date: currentDate, status: currentLogState.status, meds: [...currentLogState.selectedMeds], sensations: [...currentLogState.selectedSensations], note: currentLogState.note, timestamp: new Date().getTime() }; logs = logs.filter(l => l.date !== currentDate); logs.push(newLog); logs.sort((a, b) => b.date.localeCompare(a.date)); saveToLocal(); showToast("✅ 紀錄已成功儲存"); }
+        function addItem(type) { const input = document.getElementById(type === 'med' ? 'new-med' : 'new-sensation'); const val = input.value.trim(); if (!val) return; if (type === 'med') medsList.push(val); else sensationsList.push(val); saveToLocal(); input.value = ''; if (type === 'med') renderMedsSettings(); else renderSensationsSettings(); }
+        function removeItem(type, index) { if (type === 'med') medsList.splice(index, 1); else sensationsList.splice(index, 1); saveToLocal(); if (type === 'med') renderMedsSettings(); else renderSensationsSettings(); }
+    </script>
+</body>
+</html>
