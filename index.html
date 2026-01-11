@@ -157,7 +157,7 @@
         let medsList = JSON.parse(localStorage.getItem('poop_diary_meds')) || DEFAULT_MEDS;
         let sensationsList = JSON.parse(localStorage.getItem('poop_diary_sensations')) || DEFAULT_SENSATIONS;
 
-        let currentLogState = { status: '順暢', selectedMeds: [], selectedSensations: [], note: '' };
+        let currentLogState = { status: '順暢', poopTime: '', selectedMeds: [], selectedSensations: [], note: '' };
 
         window.onload = () => {
             registerServiceWorker();
@@ -196,12 +196,13 @@
             if (existing) {
                 currentLogState = {
                     status: existing.status || '順暢',
+                    poopTime: existing.poopTime || '',
                     selectedMeds: [...(existing.meds || [])],
                     selectedSensations: [...(existing.sensations || [])],
                     note: existing.note || ''
                 };
             } else {
-                currentLogState = { status: '順暢', selectedMeds: [], selectedSensations: [], note: '' };
+                currentLogState = { status: '順暢', poopTime: '', selectedMeds: [], selectedSensations: [], note: '' };
             }
         }
 
@@ -241,7 +242,18 @@
                             `).join('')}
                         </div>
                     </section>
+                    
                     <section class="space-y-3">
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="clock" class="text-teal-600 w-5 h-5"></i> 排便時間 <span class="text-xs font-black text-slate-400">(24小時制)</span></h3>
+                        <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200">
+                            <div class="flex items-center gap-3">
+                                <input type="time" value="${currentLogState.poopTime || ''}" oninput="updatePoopTime(this.value)" class="flex-1 text-base font-bold bg-slate-50 border border-slate-200 rounded-xl p-4 outline-none focus:border-teal-500 shadow-inner" />
+                                <button onclick="setPoopTimeNow()" class="px-4 py-3 bg-slate-100 text-slate-700 rounded-xl border border-slate-200 font-black active:scale-95 transition-all whitespace-nowrap">現在</button>
+                            </div>
+                            <div class="text-xs text-slate-400 font-bold mt-2 ml-1">可不填；例如：07:30、21:05</div>
+                        </div>
+                    </section>
+<section class="space-y-3">
                         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="pill" class="text-teal-600 w-5 h-5"></i> 當日用藥紀錄</h3>
                         <div class="bg-white p-4 rounded-xl shadow-md border border-slate-200 grid grid-cols-2 gap-3">
                             ${medsList.length ? medsList.map(m => `
@@ -310,8 +322,17 @@
                         filteredLogs.map(log => `
                             <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 border-l-[6px] border-l-teal-600 relative">
                                 <button onclick="editLog('${log.date}')" class="absolute top-4 right-4 p-2 bg-slate-50 text-teal-600 rounded-lg border border-slate-100 hover:bg-teal-50 active:scale-90 transition-all shadow-sm flex items-center gap-1"><i data-lucide="edit-3" class="w-4 h-4"></i><span class="text-xs font-bold">修改</span></button>
-                                <div class="flex flex-col mb-3"><span class="font-black text-slate-800 text-lg">${log.date}</span><div class="mt-2"><span class="text-lg px-4 py-2 rounded-xl font-black uppercase inline-block ${log.status === '順暢' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${log.status}</span></div></div>
-                                <div class="flex flex-wrap gap-2 mb-3 pr-16">${log.sensations.map(s => `<span class="text-xs bg-sky-50 text-sky-800 px-3 py-1 rounded-md border border-sky-200 font-bold">${s}</span>`).join('')}${log.meds.map(m => `<span class="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-md border border-slate-300 font-bold">${m}</span>`).join('')}</div>
+                                <div class="flex flex-col mb-3">
+                                    <span class="font-black text-slate-800 text-lg">${log.date}</span>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <span class="text-lg px-4 py-2 rounded-xl font-black uppercase inline-block ${log.status === '順暢' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${log.status}</span>
+                                        <span class="text-sm px-3 py-2 rounded-xl font-black bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-4 h-4"></i>
+                                            排便時間：${log.poopTime ? log.poopTime : '—'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mb-3 pr-16">${(log.sensations || []).map(s => `<span class="text-xs bg-sky-50 text-sky-800 px-3 py-1 rounded-md border border-sky-200 font-bold">${s}</span>`).join('')}${(log.meds || []).map(m => `<span class="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-md border border-slate-300 font-bold">${m}</span>`).join('')}</div>
                                 ${log.note ? `<div class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border-l-4 border-slate-300 font-medium italic">“ ${log.note} ”</div>` : ''}
                             </div>
                         `).join('')}
@@ -367,7 +388,15 @@
         function toggleMed(m) { const idx = currentLogState.selectedMeds.indexOf(m); if (idx > -1) currentLogState.selectedMeds.splice(idx, 1); else currentLogState.selectedMeds.push(m); renderRecord(); }
         function toggleSensation(s) { const idx = currentLogState.selectedSensations.indexOf(s); if (idx > -1) currentLogState.selectedSensations.splice(idx, 1); else currentLogState.selectedSensations.push(s); renderRecord(); }
         function updateNote(val) { currentLogState.note = val; }
-        function saveCurrentLog() { const newLog = { date: currentDate, status: currentLogState.status, meds: [...currentLogState.selectedMeds], sensations: [...currentLogState.selectedSensations], note: currentLogState.note, timestamp: new Date().getTime() }; logs = logs.filter(l => l.date !== currentDate); logs.push(newLog); logs.sort((a, b) => b.date.localeCompare(a.date)); saveToLocal(); showToast("✅ 紀錄已成功儲存"); }
+        function updatePoopTime(val) { currentLogState.poopTime = val; }
+        function setPoopTimeNow() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            currentLogState.poopTime = `${hh}:${mm}`;
+            renderRecord();
+        }
+        function saveCurrentLog() { const newLog = { date: currentDate, status: currentLogState.status, poopTime: currentLogState.poopTime || '', meds: [...currentLogState.selectedMeds], sensations: [...currentLogState.selectedSensations], note: currentLogState.note, timestamp: new Date().getTime() }; logs = logs.filter(l => l.date !== currentDate); logs.push(newLog); logs.sort((a, b) => b.date.localeCompare(a.date)); saveToLocal(); showToast("✅ 紀錄已成功儲存"); }
         function addItem(type) { const input = document.getElementById(type === 'med' ? 'new-med' : 'new-sensation'); const val = input.value.trim(); if (!val) return; if (type === 'med') medsList.push(val); else sensationsList.push(val); saveToLocal(); input.value = ''; if (type === 'med') renderMedsSettings(); else renderSensationsSettings(); }
         function removeItem(type, index) { if (type === 'med') medsList.splice(index, 1); else sensationsList.splice(index, 1); saveToLocal(); if (type === 'med') renderMedsSettings(); else renderSensationsSettings(); }
     </script>
