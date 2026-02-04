@@ -235,7 +235,7 @@
                     <section class="space-y-3">
                         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 px-1"><i data-lucide="activity" class="text-teal-600 w-5 h-5"></i> 臨床排便狀態</h3>
                         <div class="grid grid-cols-2 gap-3">
-                            ${['便秘', '順暢', '拉肚子', '多次排便'].map(s => `
+                            ${['便秘', '順暢', '拉肚子', '蹲很久'].map(s => `
                                 <button onclick="updateStatus('${s}')" class="py-4 px-4 rounded-xl border-2 transition-all text-base font-bold ${currentLogState.status === s ? 'bg-teal-600 border-teal-700 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-600 active:bg-slate-100'}">
                                     ${s}
                                 </button>
@@ -311,7 +311,7 @@
                                     <option value="便秘" ${historyFilter.status === '便秘' ? 'selected' : ''}>便秘</option>
                                     <option value="順暢" ${historyFilter.status === '順暢' ? 'selected' : ''}>順暢</option>
                                     <option value="拉肚子" ${historyFilter.status === '拉肚子' ? 'selected' : ''}>拉肚子</option>
-                                    <option value="多次排便" ${historyFilter.status === '多次排便' ? 'selected' : ''}>多次排便</option>
+                                    <option value="蹲很久" ${historyFilter.status === '蹲很久' ? 'selected' : ''}>蹲很久</option>
                                 </select>
                                 <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><i data-lucide="chevron-down" class="w-5 h-5"></i></div>
                             </div>
